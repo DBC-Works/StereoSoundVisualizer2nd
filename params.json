@@ -1,0 +1,6 @@
+{
+  "name": "Stereosoundvisualizer2nd",
+  "tagline": "",
+  "body": "StereoSoundVisualizer2nd\r\n========================\r\n\r\nStereo sound visualizer using Processing 3.x\r\n\r\nUsage\r\n-----\r\n\r\n1. Edit setting.xml in data directory.\r\n2. Open project directory.\r\n3. Run.\r\n\r\nUpdate history\r\n--------------\r\n\r\n### 2016-09-11\r\n\r\nFirst release.\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
