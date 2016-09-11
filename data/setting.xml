@@ -1,0 +1,46 @@
+<setting>
+	<visualizers>
+		<visualizer>Noise steering line</visualizer>
+		<visualizer>Level trace</visualizer>
+		<visualizer>Particle fountain</visualizer>
+	</visualizers>
+	<scenes repeat="no">
+		<scene>
+			<file>Calling.mp3</file>
+			<beatPerMinute>104</beatPerMinute>
+			<visualization>
+				<visualizer>Particle fountain</visualizer>
+				<backgroundColor>#000000</backgroundColor>
+				<color>#fffa88</color>
+				<blendMode>ADD</blendMode>
+			</visualization>
+		</scene>
+		<scene>
+			<file>Initial Revelry.mp3</file>
+			<beatPerMinute>122</beatPerMinute>
+			<visualization>
+				<visualizer>Noise steering line</visualizer>
+				<backgroundColor>#f5f5f5</backgroundColor>
+				<color>#000000</color>
+				<blendMode>NORMAL</blendMode>
+			</visualization>
+		</scene>
+		<scene>
+			<file>Calling.mp3</file>
+			<beatPerMinute>104</beatPerMinute>
+			<visualization>
+				<visualizer>Level trace</visualizer>
+				<backgroundColor>#f5f5f5</backgroundColor>
+				<color>#7cfc00</color>
+				<blendMode>NORMAL</blendMode>
+			</visualization>
+		</scene>
+		<!--
+		 color map: 
+			#f0f8ff: aliceBlue
+			#f5f5f5: whitesmoke
+			#fffacd: lemonchiffon
+			#7cfc00: lawngreen
+		 -->
+	</scenes>
+</setting>
