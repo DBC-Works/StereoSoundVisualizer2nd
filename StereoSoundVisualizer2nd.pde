@@ -35,7 +35,7 @@ final boolean recordFrame = false;
 final boolean recordSceneLastFrame = false;
 
 // standby: Start when space key is pressed
-boolean standby = false;
+boolean standby = true;
 
 //
 // Classes

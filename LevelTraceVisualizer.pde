@@ -1,3 +1,9 @@
+/**
+ * LevelTraceVisualizer
+ * @author Sad Juno
+ * @version 201609
+ */
+
 final class LevelTraceVisualizer extends Visualizer
 {
   private final List<Particle> rightParticles = new ArrayList<Particle>();
@@ -5,13 +11,14 @@ final class LevelTraceVisualizer extends Visualizer
   private final color fgColor;
   private final color bgColor;
   private XorShift32 rand;
+
+  private float ns;
   
   LevelTraceVisualizer(SceneInfo scene)
   {
     super(scene);
     fgColor = scene.fgColor != null ? color(Integer.decode(scene.fgColor)) : #ffffff;
     bgColor = scene.bgColor != null ? color(Integer.decode(scene.bgColor)) : 0;
-
   }
   
   boolean isDrawable()
@@ -24,6 +31,7 @@ final class LevelTraceVisualizer extends Visualizer
       if (rand == null) {
         background(bgColor);
         rand = new XorShift32((int)targetScene.beatPerMinute);
+        ns = rand.nextFloat();
       }
     }
     int maxSpec = provider.rightFft.freqToIndex(440 * 4);
@@ -44,7 +52,15 @@ final class LevelTraceVisualizer extends Visualizer
     rectMode(CENTER);
     
     translate(width / 2, height);
-    stroke(hue(fgColor), saturation(fgColor), brightness(fgColor), 5);
+    float h = hue(fgColor) + 60 * (noise(ns) - 0.5);
+    if (h < 0) {
+      h += 360;
+    }
+    else if (360 < h){
+      h -= 360;
+    }
+    ns += 0.01;
+    stroke(h, saturation(fgColor), brightness(fgColor), 5);
     strokeWeight(screenCoordinator.getScaledValue(1));
     noFill();
 

@@ -1,7 +1,7 @@
 /**
  * VisualizerManager
  * @author Sad Juno
- * @version 201605
+ * @version 201609
  */
  
 import java.util.ArrayList;
@@ -30,6 +30,7 @@ final class VisualizerManager
   {
     Map<String,Visualizer> map = new HashMap<String,Visualizer>() {
       {
+        put("Ellipse rotation", new EllipseRotationVisualizer(scene));
         put("Particle fountain", new ParticleFountainVisualizer(scene));
         put("Noise steering line", new NoiseSteeringLineVisualizer(scene));
         put("Level trace", new LevelTraceVisualizer(scene));
