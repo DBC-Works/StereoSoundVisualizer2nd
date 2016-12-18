@@ -34,6 +34,7 @@ final class VisualizerManager
         put("Particle fountain", new ParticleFountainVisualizer(scene));
         put("Noise steering line", new NoiseSteeringLineVisualizer(scene));
         put("Level trace", new LevelTraceVisualizer(scene));
+        put("Noise steering curve line", new NoiseSteeringCurveLineVisualizer(scene));
       }
     };
     

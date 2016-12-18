@@ -26,7 +26,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 final float screenScale = 4 / 4.0;
 
 // fps: Frame per second
-final int fps = 15;
+final int fps = 24;
 
 // recordFrame: Record frame(experimental)
 final boolean recordFrame = false;
@@ -35,7 +35,7 @@ final boolean recordFrame = false;
 final boolean recordSceneLastFrame = false;
 
 // standby: Start when space key is pressed
-boolean standby = true;
+boolean standby = false;
 
 //
 // Classes
@@ -55,7 +55,8 @@ final class FrameRecorder implements Recorder
 
   public void recordFrame()
   {
-    saveFrame("########.tga");
+    saveFrame("img/########.tga");
+  //saveFrame("img/########.png");
   }
   
   public void finish()
@@ -145,6 +146,7 @@ final class VideoExportRecorder implements Recorder
 
 ScreenCoordinator screenCoordinator = new ScreenCoordinator(screenScale);
 int currentSceneIndex = 0;
+int frameDropCount = 0;
 SceneList scenes;
 VisualizerManager visualizerManager;
 MusicDataProvider provider;
@@ -233,9 +235,10 @@ void draw()
     return;
   }
 
+  long startTime = System.currentTimeMillis();
   if (provider.player.isPlaying() == false && provider.paused() == false) {
     if (recordSceneLastFrame) {
-      saveFrame("SceneLast-########.png");
+      saveFrame("img/SceneLast-########.png");
     }
     ++currentSceneIndex;
     if (scenes.scenes.size() <= currentSceneIndex) {
@@ -246,6 +249,9 @@ void draw()
         if (recorder != null) {
           recorder.finish();
           recorder = null;
+        }
+        if (0 < frameDropCount) {
+          println("Frame drop count: " + frameDropCount + " / " + frameCount + "(" + (frameDropCount * 100.0 / frameCount) + ")");
         }
         exit();
         return;
@@ -260,6 +266,12 @@ void draw()
   
   if (recorder != null) {
     recorder.recordFrame();
+  }
+
+  long timeTaken = System.currentTimeMillis() - startTime;
+  if (((1.0 / frameRate) * 1000) < timeTaken) {
+    println("Overtime: " + timeTaken + "ms(" + frameCount + ")");
+    ++frameDropCount;
   }
 }
 

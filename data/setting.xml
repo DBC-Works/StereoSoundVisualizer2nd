@@ -1,10 +1,23 @@
 <setting>
 	<visualizers>
-		<visualizer>Noise steering line</visualizer>
-		<visualizer>Level trace</visualizer>
+		<visualizer>Ellipse rotation</visualizer>
 		<visualizer>Particle fountain</visualizer>
+
+		<visualizer>Noise steering line</visualizer>
+		<visualizer>Noise steering curve line</visualizer>
+		<visualizer>Level trace</visualizer>
 	</visualizers>
 	<scenes repeat="no">
+		<scene>
+			<file>Initial Revelry.mp3</file>
+			<beatPerMinute>122</beatPerMinute>
+			<visualization>
+				<visualizer>Noise steering curve line</visualizer>
+				<backgroundColor>#000000</backgroundColor>
+				<color>#b0c4de</color>
+				<blendMode>NORMAL</blendMode>
+			</visualization>
+		</scene>
 		<scene>
 			<file>Calling.mp3</file>
 			<beatPerMinute>104</beatPerMinute>
@@ -41,6 +54,8 @@
 			#f5f5f5: whitesmoke
 			#fffacd: lemonchiffon
 			#7cfc00: lawngreen
+			#e6e6fa: lavendar
+			#b0c4de: lightsteelblue
 		 -->
 	</scenes>
 </setting>

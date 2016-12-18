@@ -84,3 +84,109 @@ final class NoiseSteeringLineVisualizer extends Visualizer
     }
   }
 }
+
+final class NoiseSteeringCurveLineVisualizer extends Visualizer
+{
+  private final List<Particle> rightParticles = new ArrayList<Particle>();
+  private final List<Particle> leftParticles = new ArrayList<Particle>();
+  private final color fgColor;
+  private final color bgColor;
+  private XorShift32 rand;
+
+  private float ns;
+  private float maxLevel;
+  
+  NoiseSteeringCurveLineVisualizer(SceneInfo scene)
+  {
+    super(scene);
+    fgColor = scene.fgColor != null ? color(Integer.decode(scene.fgColor)) : #ffffff;
+    bgColor = scene.bgColor != null ? color(Integer.decode(scene.bgColor)) : 0;
+  }
+  
+  boolean isDrawable()
+  {
+    return rightParticles.isEmpty() == false || leftParticles.isEmpty() == false;
+  }
+  protected void doPrepare(MusicDataProvider provider, boolean isPrimary)
+  {
+    if (isPrimary) {
+      if (rand == null) {
+        background(bgColor);
+        rand = new XorShift32((int)targetScene.beatPerMinute);
+        ns = rand.nextFloat();
+      }
+    }
+
+    float rate =  provider.player.sampleRate() / 3;
+    
+    Particle rightParticle = new Particle(new PVector(width / 2, 0), 5);
+    rightParticle.moveTo(new PVector(width / 2, map(provider.rightFft.calcAvg(0, rate), 0, 2.4, height / 2, -height / 2)));
+    rightParticles.add(rightParticle);
+    updateParticles(rightParticles, true);
+    
+    Particle leftParticle = new Particle(new PVector(-width / 2, 0), 5); 
+    leftParticle.moveTo(new PVector(-width / 2, map(provider.leftFft.calcAvg(0, rate), 0, 2.4, height / 2, -height / 2)));
+    leftParticles.add(leftParticle);
+    updateParticles(leftParticles, false);
+
+    ns += 0.01;
+  }
+  
+  private void updateParticles(List<Particle> particles, boolean rightSide)
+  {
+    Iterator iterator = particles.iterator();
+    while (iterator.hasNext()) {
+      Particle p = (Particle)iterator.next();
+      if (p.isAlive() == false || 20 < p.getAliveCount()) {
+        p.terminate();
+        iterator.remove();
+      }
+      else {
+        PVector pos = p.getCurrentPosition();
+        float angle = map(noise(pos.x, pos.y, ns), 0, 1, 0, PI);
+        if (rightSide) {
+          angle += HALF_PI;
+        }
+        else {
+          angle = HALF_PI - angle;
+        }
+        float len = abs(p.getLastDistance()) * 0.8;
+        pos.add(len * cos(angle), len * sin(angle));
+        p.moveTo(pos);
+      }
+    }    
+  }
+  
+  protected void doVisualize()
+  {
+    colorMode(HSB, 360, 100, 100, 100);
+    blendMode(targetScene.blendMode);
+    rectMode(CENTER);
+    
+    translate(width / 2, height / 2);
+    stroke(hue(fgColor), saturation(fgColor), brightness(fgColor), 5);
+    strokeWeight(screenCoordinator.getScaledValue(1));
+    noFill();
+
+    for (Particle particle : rightParticles) {
+      if (particle.isAlive()) {
+        visualizeParticle(particle);
+      }
+    }
+    
+    for (Particle particle : leftParticles) {
+      if (particle.isAlive()) {
+        visualizeParticle(particle);
+      }
+    }
+  }
+
+  private void visualizeParticle(Particle particle)
+  {
+    beginShape();
+    for (PVector pos : particle.getPositionHistory()) {
+      curveVertex(pos.x, pos.y);
+    }
+    endShape();
+  }
+}

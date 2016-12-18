@@ -3,6 +3,8 @@
  * @author Sad Juno
  * @version 201605
  */
+
+import java.util.Iterator;
  
 abstract class Visualizer
 {

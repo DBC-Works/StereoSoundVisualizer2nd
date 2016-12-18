@@ -22,6 +22,10 @@ final class Particle
   {
     return positions.get(positions.size() - 1).get();
   }
+  float getLastDistance()
+  {
+    return getCurrentPosition().dist(positions.get(positions.size() - 2));
+  }
   List<PVector> getPositionHistory()
   {
     return Collections.unmodifiableList(positions);
