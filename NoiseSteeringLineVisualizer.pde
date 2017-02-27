@@ -1,7 +1,7 @@
 /**
  * NoiseSteeringLineVisualizer
  * @author Sad Juno
- * @version 201605
+ * @version 201702
  */
 
 final class NoiseSteeringLineVisualizer extends Visualizer
@@ -14,8 +14,8 @@ final class NoiseSteeringLineVisualizer extends Visualizer
   NoiseSteeringLineVisualizer(SceneInfo scene)
   {
     super(scene);
-    fgColor = scene.fgColor != null ? color(Integer.decode(scene.fgColor)) : 0;
-    bgColor = scene.bgColor != null ? color(Integer.decode(scene.bgColor)) : #ffffff;
+    fgColor = scene.fgColor != null ? decodeColor(scene.fgColor) : 0;
+    bgColor = scene.bgColor != null ? decodeColor(scene.bgColor) : #ffffff;
   }
   boolean isDrawable()
   {

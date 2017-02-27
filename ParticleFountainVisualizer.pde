@@ -10,8 +10,8 @@ final class ParticleFountainVisualizer extends Visualizer
   ParticleFountainVisualizer(SceneInfo scene)
   {
     super(scene);
-    fgColor = scene.fgColor != null ? color(Integer.decode(scene.fgColor)) : #fffa88;
-    bgColor = scene.bgColor != null ? color(Integer.decode(scene.bgColor)) : 0;
+    fgColor = scene.fgColor != null ? decodeColor(scene.fgColor) : #fffa88;
+    bgColor = scene.bgColor != null ? decodeColor(scene.bgColor) : 0;
     noiseSeed((long)random(Integer.MAX_VALUE));
   }
   

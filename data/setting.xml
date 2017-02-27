@@ -2,12 +2,23 @@
 	<visualizers>
 		<visualizer>Ellipse rotation</visualizer>
 		<visualizer>Particle fountain</visualizer>
+		<visualizer>Beat circle and frequency level</visualizer>
 
 		<visualizer>Noise steering line</visualizer>
 		<visualizer>Noise steering curve line</visualizer>
 		<visualizer>Level trace</visualizer>
 	</visualizers>
 	<scenes repeat="no">
+		<scene>
+			<file>Calling.mp3</file>
+			<beatPerMinute>104</beatPerMinute>
+			<visualization>
+				<visualizer>Beat circle and frequency level</visualizer>
+				<backgroundColor>#000000</backgroundColor>
+				<color>#4169e1</color>
+				<blendMode>NORMAL</blendMode>
+			</visualization>
+		</scene>
 		<scene>
 			<file>Initial Revelry.mp3</file>
 			<beatPerMinute>122</beatPerMinute>
@@ -56,6 +67,7 @@
 			#7cfc00: lawngreen
 			#e6e6fa: lavendar
 			#b0c4de: lightsteelblue
+			#4169e1: royalblue
 		 -->
 	</scenes>
 </setting>

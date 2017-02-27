@@ -61,7 +61,7 @@ final class FrameRecorder implements Recorder
   
   public void finish()
   {
-  }
+  } 
 }
 
 /*
