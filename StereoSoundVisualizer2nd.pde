@@ -3,7 +3,7 @@
  * for Processing 3.x
  * licensed under <a href="http://opensource.org/licenses/MIT">MIT License</a>
  * @author Sad Juno
- * @version 201609
+ * @version 201705
  * @see <a href="https://github.com/DBC-Works">GitHub</a>
  */
 
@@ -11,18 +11,20 @@
 // Imports
 //
 
+/*
 import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+ */
 //import com.hamoid.*;
 
 //
 // Settings
 //
 
-// screenScale: 1.0 - HD(1280x720) / 1.5 - Full HD(1920x1080)
+// screenScale: 0.75 - 960x540 / 1.0 - HD(1280x720) / 1.5 - Full HD(1920x1080)
 final float screenScale = 4 / 4.0;
 
 // fps: Frame per second
@@ -209,6 +211,7 @@ void setup()
   //recorder = new VideoExportRecorder(this);
   //recorder = new AsyncFrameRecorder(this);
   }
+  println("ms per frame: " + (getSecondPerFrame() * 1000) + "ms");
   if (standby == false) {
     playNewSound();
   }

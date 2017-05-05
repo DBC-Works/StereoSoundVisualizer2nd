@@ -78,6 +78,7 @@ final class VisualizerManager
         put("Level trace", new LevelTraceVisualizer(scene));
         put("Noise steering curve line", new NoiseSteeringCurveLineVisualizer(scene));
         put("Beat circle and frequency level", new BeatCircleAndFreqLevelVisualizer(scene));
+        put("Popping level", new PoppingLevelVisualizer(scene));
       }
     };
     

@@ -1,7 +1,7 @@
 /**
- * LevelTraceVisualizer
+ * LevelVisualizer
  * @author Sad Juno
- * @version 201702
+ * @version 201705
  */
 
 final class LevelTraceVisualizer extends Visualizer
@@ -219,6 +219,99 @@ final class BeatCircleAndFreqLevelVisualizer extends Visualizer
         vertex(pos.x, pos.y);
       }
       endShape();
+    }
+  }
+}
+
+final class PoppingLevelVisualizer extends Visualizer
+{
+  private final List<List<Float>> rightLevels = new ArrayList<List<Float>>();
+  private final List<List<Float>> leftLevels = new ArrayList<List<Float>>();
+  private final color fgColor;
+  private final color bgColor;
+  private XorShift32 rand;
+
+  private float ns;
+  
+  PoppingLevelVisualizer(SceneInfo scene)
+  {
+    super(scene);
+    fgColor = scene.fgColor != null ? decodeColor(scene.fgColor) : #ffffff;
+    bgColor = scene.bgColor != null ? decodeColor(scene.bgColor) : 0;
+  }
+  
+  boolean isDrawable()
+  {
+    return true;
+  }
+  protected void doPrepare(MusicDataProvider provider, boolean isPrimary)
+  {
+    if (isPrimary) {
+      background(bgColor);
+      if (rand == null) {
+        rand = new XorShift32((int)targetScene.beatPerMinute);
+        ns = rand.nextFloat();
+      }
+    }
+    rightLevels.clear();
+    leftLevels.clear();
+    
+    float maxFreq = provider.rightFft.indexToFreq(provider.rightFft.specSize() - 1);
+    float beginFreq = 0;
+    float endFreq = 27.5;
+    while (endFreq < maxFreq) {
+      preparePoint(provider.rightFft, beginFreq, endFreq, rightLevels);
+      preparePoint(provider.leftFft, beginFreq, endFreq, leftLevels);
+      
+      beginFreq = endFreq;
+      endFreq = endFreq * 2;
+    }
+  }
+  
+  private void preparePoint(FFT fft, float beginFreq, float endFreq, List<List<Float>> target) {
+      List<Float> levels = new ArrayList<Float>();
+      for (int index = fft.freqToIndex(beginFreq); index < fft.freqToIndex(endFreq); ++index) {
+        levels.add(fft.getBand(index));
+      }
+      target.add(levels);
+  }
+  
+  protected void doVisualize()
+  {
+    colorMode(HSB, 360, 100, 100, 100);
+    blendMode(targetScene.blendMode);
+    ellipseMode(CENTER);
+    
+    translate(width / 2, 0);
+    noStroke();
+    smooth();
+    
+    visualizeLevels(rightLevels, false);
+    visualizeLevels(leftLevels, true);
+  }
+  
+  private void visualizeLevels(List<List<Float>> levelHistory, boolean asLeft) {
+    float unit = width / 4.0;
+    float h = hue(fgColor);
+    float s = saturation(fgColor);
+    float b = brightness(fgColor);
+    for (List<Float> levels : levelHistory) {
+      int index = 0;
+      float alpha = 30 + (50 * ((float)levels.size() / (float)levelHistory.get(levelHistory.size() - 1).size()) - 0.1);
+      fill(h, s, b, alpha);
+      for (float level: levels) {
+        float u = (unit / levels.size()) * map(level, 0, 50, 0, 1);
+        pushMatrix();
+        float x = map(index, 0, levels.size(), 0, (width / 2) * (asLeft ? -1 : 1));
+        float y = map(level, 0, 50, height, 0);
+        translate(x, y);
+        rotate(PI * (noise(x, y, ns) - 0.5));
+        ellipse(0, 0, (width / 2.0) / levels.size(), u);
+        popMatrix();
+
+        ns += 0.01;
+        ++index;
+      }
     }
   }
 }
