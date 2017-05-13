@@ -4,6 +4,8 @@
  * @version 201705
  */
 
+import java.util.AbstractMap.SimpleEntry;
+
 final class LevelTraceVisualizer extends Visualizer
 {
   private final List<Particle> rightParticles = new ArrayList<Particle>();
@@ -94,35 +96,43 @@ final class LevelTraceVisualizer extends Visualizer
   }
 }
 
-final class BeatCircleAndFreqLevelVisualizer extends Visualizer
+abstract class BeatCircleVisualizer extends Visualizer
 {
-  private final List<Particle> rightParticles = new ArrayList<Particle>();
-  private final List<Particle> leftParticles = new ArrayList<Particle>();
+  protected final float radius;
+  protected final float weightUnit;
+  protected final color fgColor;
+  protected final color bgColor;
+
+  private final float alphaLevel;
   private final List<Float> kickDiameters = new ArrayList<Float>();
   private final List<Float> hatDiameters = new ArrayList<Float>();
- 
-  private final float radius;
-  private final float weightUnit;
-  private final color fgColor;
-  private final color bgColor;
- 
-  private boolean kicked;
-  private boolean hatted;
 
-  BeatCircleAndFreqLevelVisualizer(SceneInfo scene)
+  private float detectionIntervalFrame = 1;
+  private int kickCount = -1;
+  private int hatCount = -1;
+  
+  protected BeatCircleVisualizer(SceneInfo scene, float fgAlphaLevel)
   {
     super(scene);
+    alphaLevel = fgAlphaLevel;
     fgColor = scene.fgColor != null ? decodeColor(scene.fgColor) : 0;
     bgColor = scene.bgColor != null ? decodeColor(scene.bgColor) : #ffffff;
 
-    int shortSideLen = min(width, height); 
+    int shortSideLen = getShortSideLen(); 
     radius = (shortSideLen / 2) * 4.0 / 5;
     weightUnit = shortSideLen / 100.0;
   }
-  boolean isDrawable()
+  
+  final boolean isDrawable()
   {
     return true;
   }
+
+  protected final void setDetectionIntervalFrame(float frame)
+  {
+    detectionIntervalFrame = frame; 
+  }
+  
   protected void doPrepare(MusicDataProvider provider, boolean isPrimary)
   {
     if (isPrimary) {
@@ -130,30 +140,58 @@ final class BeatCircleAndFreqLevelVisualizer extends Visualizer
     }
 
     updateDiameters(kickDiameters, 0.67 * (24.0 / fps), (radius / 20.0));
-    if (provider.beatDetector.isKick()) {
-      if (kicked == false) {
+    if (kickCount < 0) {
+      if (provider.beatDetector.isKick()) {
         kickDiameters.add(radius * 2);
-        kicked = true;
+        kickCount = 0;
       }
     }
-    else if (kicked) {
-      kicked = false;
+    else {
+      if (detectionIntervalFrame <= ++kickCount) {
+        kickCount = -1;
+      }
     }
 
     updateDiameters(hatDiameters, 1.2 * (24.0 / fps), max(width, height));
-    if (provider.beatDetector.isHat()) {
-      if (hatted == false) {
+    if (hatCount < 0) {
+      if (provider.beatDetector.isHat()) {
         hatDiameters.add(radius * 2);
-        hatted = true;
+        hatCount = 0;
       }
     }
-    else if (hatted) {
-      hatted = false;
+    else {
+      if (detectionIntervalFrame <= ++hatCount) {
+        hatCount = -1;
+      }
+    }
+
+    prepareAdditionalElements(provider);
+  }
+  
+  protected final void doVisualize()
+  {
+    colorMode(RGB, 255, 255, 255, 100);
+    blendMode(targetScene.blendMode);
+    
+    noFill();
+ 
+    translate(width / 2, height / 2);
+
+    ellipseMode(CENTER);
+    strokeWeight(weightUnit * 2);
+    stroke(red(fgColor), green(fgColor), blue(fgColor), alphaLevel);
+    for (float diameter : kickDiameters) {
+      ellipse(0, 0, diameter, diameter);
     }
     
-    updateParticles(rightParticles, provider.rightFft, false);
-    updateParticles(leftParticles, provider.leftFft, true);
+    strokeWeight(weightUnit * 1.5);
+    for (float diameter : hatDiameters) {
+      ellipse(0, 0, diameter, diameter);
+    }
+    
+    visualizeAdditionalElements();
   }
+  
   private void updateDiameters(List<Float> diameters, float ratio, float limit)
   {
     int index = 0;
@@ -167,6 +205,25 @@ final class BeatCircleAndFreqLevelVisualizer extends Visualizer
         ++index;
       }
     }
+  }
+  
+  abstract protected void prepareAdditionalElements(MusicDataProvider provider);
+  abstract protected void visualizeAdditionalElements();
+}
+
+final class BeatCircleAndFreqLevelVisualizer extends BeatCircleVisualizer
+{
+  private final List<Particle> rightParticles = new ArrayList<Particle>();
+  private final List<Particle> leftParticles = new ArrayList<Particle>();
+
+  BeatCircleAndFreqLevelVisualizer(SceneInfo scene)
+  {
+    super(scene, 40);
+  }
+  protected final void prepareAdditionalElements(MusicDataProvider provider)
+  {
+    updateParticles(rightParticles, provider.rightFft, false);
+    updateParticles(leftParticles, provider.leftFft, true);
   }
   private void updateParticles(List<Particle> particles, FFT fft, boolean asLeft)
   {
@@ -183,34 +240,13 @@ final class BeatCircleAndFreqLevelVisualizer extends Visualizer
       particles.add(p);
     }
   }
-  
-  protected void doVisualize()
+  protected final void visualizeAdditionalElements()
   {
-    colorMode(RGB, 255, 255, 255, 100);
-    blendMode(targetScene.blendMode);
-    
-    noFill();
- 
-    translate(width / 2, height / 2);
-
-    ellipseMode(CENTER);
-    strokeWeight(weightUnit * 2);
-    stroke(red(fgColor), green(fgColor), blue(fgColor), 40);
-    for (float diameter : kickDiameters) {
-      ellipse(0, 0, diameter, diameter);
-    }
-    
-    strokeWeight(weightUnit * 1.5);
-    for (float diameter : hatDiameters) {
-      ellipse(0, 0, diameter, diameter);
-    }
-    
     strokeWeight(weightUnit);
     stroke(red(fgColor), green(fgColor), blue(fgColor), 80);
     visualizeParticles(rightParticles);
     visualizeParticles(leftParticles);
   }
-  
   private void visualizeParticles(List<Particle> particles)
   {
     for (Particle particle : particles) {
@@ -223,10 +259,55 @@ final class BeatCircleAndFreqLevelVisualizer extends Visualizer
   }
 }
 
+final class BeatCircleAndOctavedFreqLevelVisualizer extends BeatCircleVisualizer
+{
+  private List< List< Float > > rightLevels;
+  private List< List< Float > > leftLevels;
+
+  BeatCircleAndOctavedFreqLevelVisualizer(SceneInfo scene)
+  {
+    super(scene, 67);
+  }
+  
+  protected final void prepareAdditionalElements(MusicDataProvider provider)
+  {
+    setDetectionIntervalFrame(provider.getCrotchetQuantityFrame() / 4);
+    
+    SimpleEntry< List< List< Float > >, List< List<Float> > > octavedLevels = provider.getOctavedLevels();
+    rightLevels = octavedLevels.getKey();
+    leftLevels = octavedLevels.getValue();
+  }
+  protected final void visualizeAdditionalElements()
+  {
+    stroke(red(fgColor), green(fgColor), blue(fgColor), 80);
+    drawLevels(rightLevels, false);
+    drawLevels(leftLevels, true);
+  }
+  
+  private void drawLevels(List< List< Float > > levels, boolean asLeft)
+  {
+    for(List<Float> levelPerScale : levels) {
+      float angleStep = PI / levelPerScale.size();
+      float unit = getShortSideLen() / 2;
+      float x = 0, y = 0, prevX = 0, prevY = unit; 
+      for (int index = 0; index < levelPerScale.size(); ++index) {
+        float level = levelPerScale.get(index);
+        x = (unit * (level / 20.0) * cos((PI / 2) + (angleStep * index))) * (asLeft ? -1 : 1);
+        y = (unit * (level / 20.0) * sin((PI / 2) + (angleStep * index)));
+        strokeWeight(screenCoordinator.getScaledValue(level * 1.5));
+        line(prevX, prevY, x, y);
+        prevX = x;
+        prevY = y;
+      }
+      line(prevX, prevY, 0, -unit);
+    }
+  }
+}
+
 final class PoppingLevelVisualizer extends Visualizer
 {
-  private final List<List<Float>> rightLevels = new ArrayList<List<Float>>();
-  private final List<List<Float>> leftLevels = new ArrayList<List<Float>>();
+  private List<List<Float>> rightLevels;
+  private List<List<Float>> leftLevels;
   private final color fgColor;
   private final color bgColor;
   private XorShift32 rand;
@@ -244,6 +325,7 @@ final class PoppingLevelVisualizer extends Visualizer
   {
     return true;
   }
+
   protected void doPrepare(MusicDataProvider provider, boolean isPrimary)
   {
     if (isPrimary) {
@@ -253,29 +335,10 @@ final class PoppingLevelVisualizer extends Visualizer
         ns = rand.nextFloat();
       }
     }
-    rightLevels.clear();
-    leftLevels.clear();
-    
-    float maxFreq = provider.rightFft.indexToFreq(provider.rightFft.specSize() - 1);
-    float beginFreq = 0;
-    float endFreq = 27.5;
-    while (endFreq < maxFreq) {
-      preparePoint(provider.rightFft, beginFreq, endFreq, rightLevels);
-      preparePoint(provider.leftFft, beginFreq, endFreq, leftLevels);
-      
-      beginFreq = endFreq;
-      endFreq = endFreq * 2;
-    }
+    SimpleEntry< List< List< Float > >, List< List<Float> > > octavedLevels = provider.getOctavedLevels();
+    rightLevels = octavedLevels.getKey();
+    leftLevels = octavedLevels.getValue();
   }
-  
-  private void preparePoint(FFT fft, float beginFreq, float endFreq, List<List<Float>> target) {
-      List<Float> levels = new ArrayList<Float>();
-      for (int index = fft.freqToIndex(beginFreq); index < fft.freqToIndex(endFreq); ++index) {
-        levels.add(fft.getBand(index));
-      }
-      target.add(levels);
-  }
-  
   protected void doVisualize()
   {
     colorMode(HSB, 360, 100, 100, 100);

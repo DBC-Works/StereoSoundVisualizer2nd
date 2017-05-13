@@ -1,10 +1,11 @@
 /**
  * SoundDataProvider
  * @author Sad Juno
- * @version 201605
+ * @version 201705
  * @see <a href="http://code.compartmental.net/minim/javadoc/">Minim Javadoc</a>
  */
 
+import java.util.AbstractMap.SimpleEntry;
 import ddf.minim.AudioPlayer;
 import ddf.minim.Minim;
 import ddf.minim.analysis.BeatDetect;
@@ -94,9 +95,38 @@ final class MusicDataProvider extends SoundDataProvider
   {
     return (float)(60.0 / beatPerMinute);
   }
+  float getCrotchetQuantityFrame()
+  {
+    return getCrotchetQuantitySecond() * frameRate;
+  }
   float getMeasureLengthSecond(int beatCount)
   {
     return getCrotchetQuantitySecond() * beatCount;
+  }
+  SimpleEntry< List< List< Float > >, List< List< Float > > > getOctavedLevels()
+  {
+    List< List< Float > > rightLevels = new ArrayList< List< Float > >();
+    List< List< Float > > leftLevels = new ArrayList< List< Float > >();
+    
+    float maxFreq = rightFft.indexToFreq(rightFft.specSize() - 1);
+    float beginFreq = 0;
+    float endFreq = 27.5;
+    while (endFreq < maxFreq) {
+      rightLevels.add(getLevelsInRange(beginFreq, endFreq, rightFft));
+      leftLevels.add(getLevelsInRange(beginFreq, endFreq, leftFft));
+      
+      beginFreq = endFreq;
+      endFreq = endFreq * 2;
+    }
+    return new SimpleEntry< List< List< Float > >, List< List< Float > > >(rightLevels, leftLevels);
+  }
+  private List<Float> getLevelsInRange(float beginFreq, float endFreq, FFT fft)
+  {
+      List<Float> levels = new ArrayList<Float>();
+      for (int index = fft.freqToIndex(beginFreq); index < fft.freqToIndex(endFreq); ++index) {
+        levels.add(fft.getBand(index));
+      }
+      return levels;
   }
 
   protected void doUpdate()

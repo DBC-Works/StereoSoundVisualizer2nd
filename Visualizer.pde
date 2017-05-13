@@ -42,6 +42,10 @@ abstract class Visualizer
     int c = Integer.decode(nm); 
     return nm.startsWith("#0000") && c < 256 ? color(0, 0, c) : color(c);
   }
+  protected int getShortSideLen()
+  {
+    return min(width, height); 
+  }
   
   void keyReleased()
   {
@@ -79,6 +83,7 @@ final class VisualizerManager
         put("Noise steering curve line", new NoiseSteeringCurveLineVisualizer(scene));
         put("Beat circle and frequency level", new BeatCircleAndFreqLevelVisualizer(scene));
         put("Popping level", new PoppingLevelVisualizer(scene));
+        put("Beat circle and octaved frequency level", new BeatCircleAndOctavedFreqLevelVisualizer(scene));
       }
     };
     
