@@ -1,12 +1,12 @@
 public final class ShapeSource
 {
   public final PVector position;
-  public final float size;
+  public final float radius;
   
-  public ShapeSource(PVector pos, float s)
+  public ShapeSource(PVector pos, float r)
   {
     position = pos;
-    size = s;
+    radius = r;
   }
 }
 
@@ -50,7 +50,7 @@ final class RegularPolygon extends Shape
   {
     beginShape();
     for (float angle = 0; angle < TWO_PI; angle += (TWO_PI / number)) {
-      vertex(source.position.x + (source.size * cos(angle)), source.position.y + (source.size * sin(angle)), source.position.z);
+      vertex(source.position.x + (source.radius * cos(angle)), source.position.y + (source.radius * sin(angle)), source.position.z);
     }
     endShape(CLOSE);
   }
@@ -58,12 +58,9 @@ final class RegularPolygon extends Shape
 
 final class PliantSpot extends Shape
 {
-  private final float radius;
-  
-  public PliantSpot(ShapeSource src, float r)
+  public PliantSpot(ShapeSource src)
   {
     super(src);
-    radius = r;
   }
   
   protected final void doVisualize()
@@ -75,9 +72,9 @@ final class PliantSpot extends Shape
     float angle = 0;
     int corners = 4 + ((int)(radomizer.nextFloat() * 4) * 2);
     while (angle < TWO_PI) {
-      float baseX = radius * cos(baseAngle + angle);
-      float baseY = radius * sin(baseAngle + angle);
-      float r = radius * (0.5 + noise(baseX, baseY, ns));
+      float baseX = source.radius * cos(baseAngle + angle);
+      float baseY = source.radius * sin(baseAngle + angle);
+      float r = source.radius * (0.5 + noise(baseX, baseY, ns));
       points.add(new PVector(r * cos(baseAngle + angle), r * sin(baseAngle + angle)));
       angle += (TWO_PI / corners) * (0.5 + noise(ns));
       ns += 0.01;
