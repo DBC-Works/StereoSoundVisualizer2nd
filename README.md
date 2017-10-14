@@ -13,6 +13,18 @@ Usage
 Update history
 --------------
 
+### 2017-10-14
+
+Add SpreadOctagonVisualizer.
+
+### 2017-05-13
+
+Add BeatCircleAndOctavedFreqLevelVisualizer.
+
+### 2017-05-05
+
+Add PoppingLevelVisualizer.
+
 ### 2017-02-25
 
 * Add BeatCircleAndFreqLevelVisualizer.

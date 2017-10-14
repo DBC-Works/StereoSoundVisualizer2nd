@@ -378,3 +378,100 @@ final class PoppingLevelVisualizer extends Visualizer
     }
   }
 }
+
+final class SpreadOctagonVisualizer extends Visualizer
+{
+  private final List<List<List<ShapeSource>>> rightSourcesHistory;
+  private final List<List<List<ShapeSource>>> leftSourcesHistory;
+  private final color fgColor;
+  private final color bgColor;
+  
+  SpreadOctagonVisualizer(SceneInfo scene)
+  {
+    super(scene);
+    fgColor = scene.fgColor != null ? decodeColor(scene.fgColor) : #ffffff;
+    bgColor = scene.bgColor != null ? decodeColor(scene.bgColor) : 0;
+    
+    rightSourcesHistory = new ArrayList<List<List<ShapeSource>>>(); 
+    leftSourcesHistory = new ArrayList<List<List<ShapeSource>>>(); 
+  }
+  
+  boolean isDrawable()
+  {
+    return 0 < rightSourcesHistory.size() || 0 < leftSourcesHistory.size();
+  }
+
+  private List<List<ShapeSource>> translateLevelsToPoints(List<List<Float>> levels, boolean asLeft)
+  {
+    List<List<ShapeSource>> points = new ArrayList<List<ShapeSource>>(); 
+    for(List<Float> levelsPerScale : levels) {
+      List<ShapeSource> pointsPerScale = new ArrayList<ShapeSource>(); 
+      float angleStep = PI / levelsPerScale.size();
+      float unit = getShortSideLen() / 2;
+      for (int index = 0; index < levelsPerScale.size(); ++index) {
+        float level = levelsPerScale.get(index);
+        float x = (unit * (level / 20.0) * cos((PI / 2) + (angleStep * index))) * (asLeft ? 1 : -1);
+        float y = (unit * (level / 20.0) * sin((PI / 2) + (angleStep * index)));
+        pointsPerScale.add(new ShapeSource(new PVector(x, y, 0), screenCoordinator.getScaledValue(level * 8)));
+      }
+      points.add(pointsPerScale);
+    }
+    return points;
+  }
+  
+  protected void doPrepare(MusicDataProvider provider, boolean isPrimary)
+  {
+    if (isPrimary) {
+      background(bgColor);
+      SimpleEntry< List< List< Float > >, List< List<Float> > > octavedLevels = provider.getOctavedLevels();
+      rightSourcesHistory.add(translateLevelsToPoints(octavedLevels.getKey(), false));
+      leftSourcesHistory.add(translateLevelsToPoints(octavedLevels.getValue(), true));
+    }
+    if ((isPrimary == false && rightSourcesHistory.isEmpty() == false) || 6 < rightSourcesHistory.size()) {
+      rightSourcesHistory.remove(0);
+    }
+    if ((isPrimary == false && leftSourcesHistory.isEmpty() == false) || 6 < leftSourcesHistory.size()) {
+      leftSourcesHistory.remove(0);
+    }
+  }
+  protected void doVisualize()
+  {
+    colorMode(HSB, 360, 100, 100, 100);
+    blendMode(targetScene.blendMode);
+    
+    translate(width / 2, height / 2);
+    smooth();
+    noFill();
+
+    strokeWeight(screenCoordinator.getScaledValue(3));
+    pushMatrix();
+    int index = rightSourcesHistory.size();
+    for (List<List<ShapeSource>> rightSources : rightSourcesHistory) {
+      visualizeSources(rightSources, (float)index / rightSourcesHistory.size());
+      rotateY((PI / rightSourcesHistory.size()) / 2);
+      --index;
+    }
+    popMatrix();
+    pushMatrix();
+    index = leftSourcesHistory.size();
+    for (List<List<ShapeSource>> leftSources : leftSourcesHistory) {
+      visualizeSources(leftSources, (float)index / leftSourcesHistory.size());
+      rotateY(-((PI / rightSourcesHistory.size()) / 2));
+      --index;
+    }
+    popMatrix();
+  }
+  
+  private void visualizeSources(List<List<ShapeSource>> sources, float intensity) {
+    float h = hue(fgColor);
+    float s = saturation(fgColor);
+    float b = brightness(fgColor);
+    stroke(color(h, s * ((1 - intensity) * 2), b, 75));
+    Shape shape = new RegularPolygon(null, 8);
+    for (List<ShapeSource> sourcesPerScale : sources) {
+      for (ShapeSource source : sourcesPerScale) {
+        shape.setSource(source).visualize();
+      }
+    }
+  }
+}

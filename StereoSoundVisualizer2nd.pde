@@ -197,8 +197,8 @@ void playNewSound()
 
 void setup()
 {
-//size(640, 360, P3D);
-//size(960, 540, P3D);
+  //size(640, 360, P3D);
+  //size(960, 540, P3D);
   size(1280, 720, P3D);
 
   loadSetting();
@@ -280,6 +280,7 @@ void draw()
 
 void keyReleased()
 {
+  println(keyCode);
   switch (keyCode) {
     case ' ':
       if (standby) {
@@ -295,6 +296,22 @@ void keyReleased()
         }
       }
       break;
+ /*
+    case 16:
+      // PgUp
+      --currentSceneIndex;
+      if (currentSceneIndex < 0) {
+        currentSceneIndex = scenes.scenes.size() - 1;
+      }
+      break;
+    case 11:
+      // PgDown
+      ++currentSceneIndex;
+      if (scenes.scenes.size() <= currentSceneIndex) {
+        currentSceneIndex = 0;
+      }
+      break;
+*/
     default:
       visualizerManager.keyReleased();
       break;

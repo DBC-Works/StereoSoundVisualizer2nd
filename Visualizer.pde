@@ -84,6 +84,7 @@ final class VisualizerManager
         put("Beat circle and frequency level", new BeatCircleAndFreqLevelVisualizer(scene));
         put("Popping level", new PoppingLevelVisualizer(scene));
         put("Beat circle and octaved frequency level", new BeatCircleAndOctavedFreqLevelVisualizer(scene));
+        put("Spread octagon level", new SpreadOctagonVisualizer(scene));
       }
     };
     

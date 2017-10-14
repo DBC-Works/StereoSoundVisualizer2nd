@@ -5,13 +5,23 @@
 		<visualizer>Beat circle and frequency level</visualizer>
 		<visualizer>Beat circle and octaved frequency level</visualizer>
 		<visualizer>Popping level</visualizer>
+		<visualizer>Spread octagon level</visualizer>
 
 		<visualizer>Noise steering line</visualizer>
 		<visualizer>Noise steering curve line</visualizer>
 		<visualizer>Level trace</visualizer>
-
 	</visualizers>
 	<scenes repeat="no">
+		<scene>
+			<file>Calling.mp3</file>
+			<beatPerMinute>104</beatPerMinute>
+			<visualization>
+				<visualizer>Spread octagon level</visualizer>
+				<backgroundColor>#000000</backgroundColor>
+				<color>#4169e1</color>
+				<blendMode>ADD</blendMode>
+			</visualization>
+		</scene>
 		<scene>
 			<file>Initial Revelry.mp3</file>
 			<beatPerMinute>122</beatPerMinute>
@@ -93,6 +103,8 @@
 			#b0c4de: lightsteelblue
 			#4169e1: royalblue
 			#ff4500: orangered
+			#9400d3: darkviolet
+			#191970: midnightblue
 		 -->
 	</scenes>
 </setting>
