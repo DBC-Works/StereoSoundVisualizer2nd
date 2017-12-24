@@ -1,7 +1,7 @@
 /**
  * SoundDataProvider
  * @author Sad Juno
- * @version 201705
+ * @version 201712
  * @see <a href="http://code.compartmental.net/minim/javadoc/">Minim Javadoc</a>
  */
 
@@ -16,10 +16,12 @@ class SoundDataProvider
   final AudioPlayer player;
   final FFT rightFft;
   final FFT leftFft;
+  final float initialFrameRate;
 
   private final Minim minim;
+  protected long startTimeMs = -1;
 
-  SoundDataProvider(PApplet applet, String filePath)
+  SoundDataProvider(PApplet applet, String filePath, float fr)
   {
     minim = new Minim(applet);
     player = minim.loadFile(filePath, 1024);
@@ -27,6 +29,7 @@ class SoundDataProvider
     leftFft = new FFT(player.bufferSize(), player.sampleRate());
     rightFft.window(FFT.HAMMING);
     leftFft.window(FFT.HAMMING);
+    initialFrameRate = fr;
   }
   boolean paused()
   {
@@ -35,6 +38,9 @@ class SoundDataProvider
   SoundDataProvider play()
   {
     if (player != null) {
+      if (startTimeMs < 0) {
+        startTimeMs = System.currentTimeMillis();
+      }
       player.play();
     }
     return this;
@@ -73,9 +79,9 @@ final class MusicDataProvider extends SoundDataProvider
   private float beatPerMinute;
   private final BeatDetect beatDetector;
   
-  MusicDataProvider(PApplet applet, String filePath, float bpm)
+  MusicDataProvider(PApplet applet, String filePath, float fr, float bpm)
   {
-    super(applet, filePath);
+    super(applet, filePath, fr);
     
     beatPerMinute = bpm;
     beatDetector = new BeatDetect();
@@ -97,11 +103,19 @@ final class MusicDataProvider extends SoundDataProvider
   }
   float getCrotchetQuantityFrame()
   {
-    return getCrotchetQuantitySecond() * frameRate;
+    return getCrotchetQuantitySecond() * initialFrameRate;
   }
   float getMeasureLengthSecond(int beatCount)
   {
     return getCrotchetQuantitySecond() * beatCount;
+  }
+  float getElapsedTimeMs()
+  {
+    return 0 < startTimeMs ? System.currentTimeMillis() - startTimeMs : 0;
+  }
+  float getElapsedTimeAsQuantitySecond()
+  {
+    return (getElapsedTimeMs() / 1000) / getCrotchetQuantitySecond();
   }
   SimpleEntry< List< List< Float > >, List< List< Float > > > getOctavedLevels()
   {

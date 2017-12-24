@@ -1,3 +1,9 @@
+/**
+ * Visualizer
+ * @author Sad Juno
+ * @version 201712
+ */
+
 public final class ShapeSource
 {
   public final PVector position;
@@ -22,6 +28,7 @@ abstract class Shape
   public Shape setSource(ShapeSource src)
   {
     source = src;
+    updateSource();
     return this;
   }
   
@@ -31,6 +38,10 @@ abstract class Shape
     translate(source.position.x, source.position.y, source.position.z);
     doVisualize();
     popMatrix();
+  }
+  
+  protected void updateSource()
+  {
   }
   
   abstract protected void doVisualize();
@@ -89,5 +100,110 @@ final class PliantSpot extends Shape
     PVector firstPoint = points.get(1); 
     curveVertex(firstPoint.x, firstPoint.y);
     endShape(CLOSE);
+  }
+}
+
+abstract class AbstractRegularOctahedron extends Shape
+{
+  protected PVector top;
+  protected PVector right;
+  protected PVector bottom;
+  protected PVector left;
+  protected PVector front;
+  protected PVector back;
+  
+  protected AbstractRegularOctahedron(ShapeSource src)
+  {
+    super(src);
+    if (source != null) {
+      updatePoints();
+      doUpdateSource();
+    }
+  }
+  
+  private void updatePoints()
+  {
+    top = new PVector(0, -source.radius, 0);
+    right = new PVector(source.radius, 0, 0);
+    bottom = new PVector(0, source.radius, 0);
+    left = new PVector(-source.radius, 0, 0);
+    front = new PVector(0, 0, -source.radius);
+    back = new PVector(0, 0, source.radius);
+  }
+  
+  protected final void drawFace(PVector[][] faces)
+  {
+    for (PVector[] face : faces) {
+      beginShape();
+      for (PVector point : face) {
+        vertex(point.x, point.y, point.z);
+      }
+      endShape(CLOSE);
+    }
+  }
+  
+  protected void updateSource()
+  {
+    if (source != null) {
+      updatePoints();
+      doUpdateSource();
+    }
+  }
+  
+  protected void doUpdateSource()
+  {
+  }
+}
+
+  final class RegularOctahedron extends AbstractRegularOctahedron
+{
+  private PVector[][] faces;
+
+  public RegularOctahedron(ShapeSource src)
+  {
+    super(src);
+  }
+  
+  protected final void doVisualize()
+  {
+    drawFace(faces);
+  }
+  
+  protected void doUpdateSource()
+  {
+    faces = new PVector[][] {
+      { top, left, back }, 
+      { top, right, back }, 
+      { bottom, left, back }, 
+      { bottom, right, back }, 
+      { top, left, front }, 
+      { top, right, front }, 
+      { bottom, left, front }, 
+      { bottom, right, front }
+    };
+  }
+}
+
+final class CrossSquare extends AbstractRegularOctahedron
+{
+  private PVector[][] faces;
+
+  public CrossSquare(ShapeSource src)
+  {
+    super(src);
+  }
+  
+  protected final void doVisualize()
+  {
+    drawFace(faces);
+  }
+  
+  protected void doUpdateSource()
+  {
+    faces = new PVector[][] {
+      { top, front, bottom, back }, 
+      { top, right, bottom, left }, 
+      { back, right, front, left }, 
+    };
   }
 }

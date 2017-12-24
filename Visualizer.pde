@@ -1,7 +1,7 @@
 /**
  * Visualizer
  * @author Sad Juno
- * @version 201609
+ * @version 201712
  */
 
 import java.util.Iterator;
@@ -85,6 +85,7 @@ final class VisualizerManager
         put("Popping level", new PoppingLevelVisualizer(scene));
         put("Beat circle and octaved frequency level", new BeatCircleAndOctavedFreqLevelVisualizer(scene));
         put("Spread octagon level", new SpreadOctagonVisualizer(scene));
+        put("Triple regular octahedron", new TripleRegularOctahedronVisualizer(scene));
       }
     };
     

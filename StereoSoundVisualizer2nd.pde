@@ -3,7 +3,7 @@
  * for Processing 3.x
  * licensed under <a href="http://opensource.org/licenses/MIT">MIT License</a>
  * @author Sad Juno
- * @version 201705
+ * @version 201712
  * @see <a href="https://github.com/DBC-Works">GitHub</a>
  */
 
@@ -187,7 +187,7 @@ void playNewSound()
   SceneInfo scene = getCurrentScene();
   visualizerManager.setupVisualizers(scene);
 
-  provider = new MusicDataProvider(this, scene.filePath, scene.beatPerMinute);
+  provider = new MusicDataProvider(this, scene.filePath, fps, scene.beatPerMinute);
   provider.play();
 }
  
@@ -280,7 +280,7 @@ void draw()
 
 void keyReleased()
 {
-  println(keyCode);
+  //println(keyCode);
   switch (keyCode) {
     case ' ':
       if (standby) {

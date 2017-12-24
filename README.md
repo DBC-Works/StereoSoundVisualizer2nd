@@ -13,6 +13,10 @@ Usage
 Update history
 --------------
 
+### 2017-12-24
+
+Add TripleRegularOctahedronVisualizer(Example is on [YouTube](https://www.youtube.com/watch?v=_TwmpcksBoE)).
+
 ### 2017-10-14
 
 Add SpreadOctagonVisualizer(Example is on [YouTube](https://www.youtube.com/watch?v=hETIP_SY71s)).
