@@ -7,12 +7,23 @@
 		<visualizer>Popping level</visualizer>
 		<visualizer>Spread octagon level</visualizer>
 		<visualizer>Triple regular octahedron</visualizer>
+		<visualizer>Facing levels</visualizer>
 
 		<visualizer>Noise steering line</visualizer>
 		<visualizer>Noise steering curve line</visualizer>
 		<visualizer>Level trace</visualizer>
 	</visualizers>
 	<scenes repeat="no">
+		<scene>
+			<file>Calling.mp3</file>
+			<beatPerMinute>104</beatPerMinute>
+			<visualization>
+				<visualizer>Facing levels</visualizer>
+				<backgroundColor>#000000</backgroundColor>
+				<color>#228b22</color>
+				<blendMode>ADD</blendMode>
+			</visualization>
+		</scene>
 		<scene>
 			<file>Initial Revelry.mp3</file>
 			<beatPerMinute>122</beatPerMinute>

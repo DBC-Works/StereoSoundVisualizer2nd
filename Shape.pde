@@ -103,6 +103,54 @@ final class PliantSpot extends Shape
   }
 }
 
+final class RegularTetrahedron extends Shape
+{
+  private PVector front;
+  private PVector back;
+  private PVector right;
+  private PVector left;
+  
+  public RegularTetrahedron(ShapeSource src)
+  {
+    super(src);
+    if (source != null) {
+      updatePoints();
+    }
+  }
+  
+  private void updatePoints()
+  {
+    front = new PVector(source.radius, source.radius, source.radius);
+    right = new PVector(source.radius, -source.radius, -source.radius);
+    back = new PVector(-source.radius, source.radius, -source.radius);
+    left = new PVector(-source.radius, -source.radius, source.radius);
+  }
+  
+  protected final void doVisualize()
+  {
+    PVector[][] faces = new PVector[][] {
+      { front, left, right }, 
+      { back, left, right }, 
+      { front, back, left }, 
+      { front, back, right }, 
+    };
+    for (PVector[] face : faces) {
+      beginShape();
+      for (PVector point : face) {
+        vertex(point.x, point.y, point.z);
+      }
+      endShape(CLOSE);
+    }
+  }
+  
+  protected void updateSource()
+  {
+    if (source != null) {
+      updatePoints();
+    }
+  }
+}
+
 abstract class AbstractRegularOctahedron extends Shape
 {
   protected PVector top;
@@ -155,7 +203,7 @@ abstract class AbstractRegularOctahedron extends Shape
   }
 }
 
-  final class RegularOctahedron extends AbstractRegularOctahedron
+final class RegularOctahedron extends AbstractRegularOctahedron
 {
   private PVector[][] faces;
 

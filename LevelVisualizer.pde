@@ -509,7 +509,6 @@ final class ValueAttenuator
   }
 }
 
-
 final class TripleRegularOctahedronVisualizer extends Visualizer
 {
   private final Shape shape = new RegularOctahedron(null);
@@ -661,6 +660,147 @@ final class TripleRegularOctahedronVisualizer extends Visualizer
         float x = asLeft ? -len : len; 
         for (ValueAttenuator value : levels) {
           line(x, y + (step / 2), x + (len * value.getValue() * (asLeft ? 1 : -1)), y - (step / 2));
+          y -= step;
+        }
+      }
+    }
+  }
+}
+
+final class FacingLevelsVisualizer extends Visualizer
+{
+  private final color fgColor;
+  private final color bgColor;
+ 
+  private final ValueAttenuator mixIntensity = new ValueAttenuator(0.5);
+  private final ValueAttenuator rightIntensity = new ValueAttenuator(0.5);
+  private final ValueAttenuator leftIntensity = new ValueAttenuator(0.5);
+  
+  private List< List< ValueAttenuator > > rightLevels;
+  private List< List< ValueAttenuator > > leftLevels;
+  private float ns = random(100);
+  
+  FacingLevelsVisualizer(SceneInfo scene)
+  {
+    super(scene);
+    fgColor = scene.fgColor != null ? decodeColor(scene.fgColor) : #ffffff;
+    bgColor = scene.bgColor != null ? decodeColor(scene.bgColor) : 0;
+  }
+  
+  boolean isDrawable()
+  {
+    return 0 < mixIntensity.getValue()
+          || 0 < leftIntensity.getValue()
+          || 0 < rightIntensity.getValue();
+  }
+  
+  private List< List< ValueAttenuator > > initializeLevelContainer(List< List< Float > > latestOctavedLevels)
+  {
+    List< List< ValueAttenuator > > octavedLevels = new ArrayList< List< ValueAttenuator > >();
+    for (List< Float > latestLevels : latestOctavedLevels) {
+      List< ValueAttenuator > levels = new ArrayList< ValueAttenuator >();
+      for (float level : latestLevels) {
+        levels.add(new ValueAttenuator(0.5).update(level));
+      }
+      octavedLevels.add(levels);
+    }
+    return octavedLevels;
+  }
+
+  private void updateLevels(List< List< Float > > latestOctavedLevels, List< List< ValueAttenuator > > octavedLevels)
+  {
+    if (latestOctavedLevels != null) {
+      for (int octave = 0; octave < latestOctavedLevels.size(); ++octave) {
+        List< Float > latestOctaves = latestOctavedLevels.get(octave);
+        List< ValueAttenuator > octaves = octavedLevels.get(octave); 
+        for (int index = 0; index < latestOctaves.size(); ++index) {
+          octaves.get(index).update(latestOctaves.get(index));
+        }
+      }
+    }
+    else {
+      for (List< ValueAttenuator > levels : octavedLevels) {
+        for (ValueAttenuator value : levels) {
+          value.update();
+        }
+      }
+    }
+  }
+  
+  protected void doPrepare(MusicDataProvider provider, boolean isPrimary)
+  {
+    List< List< Float >> latestRightLevels = null;
+    List< List< Float >> latestLeftLevels = null;
+    
+    if (isPrimary) {
+      background(bgColor);
+      SimpleEntry< List< List< Float > >, List< List<Float> > > octavedLevels = provider.getOctavedLevels();
+      latestRightLevels = octavedLevels.getKey(); 
+      latestLeftLevels = octavedLevels.getValue(); 
+    }
+    if (latestRightLevels != null && rightLevels == null) {
+      rightLevels = initializeLevelContainer(latestRightLevels);
+    }
+    else if (rightLevels != null) {
+      updateLevels(latestRightLevels, rightLevels);
+    }
+    if (latestLeftLevels != null && leftLevels == null) {
+      leftLevels = initializeLevelContainer(latestLeftLevels);
+    }
+    else if (leftLevels != null) {
+      updateLevels(latestLeftLevels, leftLevels);
+    }
+
+    mixIntensity.update(provider.player.mix.level());
+    rightIntensity.update(provider.player.right.level());
+    leftIntensity.update(provider.player.left.level());
+  }
+  protected void doVisualize()
+  {
+    colorMode(HSB, 360, 100, 100, 100);
+    blendMode(targetScene.blendMode);
+    
+    translate(width / 2, height / 2);
+    smooth();
+    noFill();
+    
+    float h = hue(fgColor);
+    float s = saturation(fgColor);
+    float b = brightness(fgColor);
+    stroke(color(h, s, b, 25));
+
+    if (rightLevels != null) {
+      visualizeOctavedLevels(rightLevels, false);
+    }
+    if (leftLevels != null) {
+      visualizeOctavedLevels(leftLevels, true);
+    }
+  }
+  
+  private void visualizeOctavedLevels(List< List< ValueAttenuator > > octavedLevels, boolean asLeft)
+  {
+    float len = width / 2;
+    for (List< ValueAttenuator > levels : octavedLevels) {
+      if (0 < levels.size()) {
+        float step = ((float)height) / levels.size();
+        float y =  height / 2;
+        if (levels.size() % 2 != 0) {
+          y -= (step / 2);
+        }
+        float x = asLeft ? -len : len;
+        
+        float weight = Math.max(step / 2, screenCoordinator.getScaledValue(3)); 
+        for (ValueAttenuator value : levels) {
+          float lineLen = (len * value.getValue() * (asLeft ? 1 : -1));
+          
+          strokeWeight(weight * (noise(x, y, ns) + 0.5));
+          line(x, y, x + lineLen, y);
+          ns += 0.05;
+          
+          strokeWeight(weight / 2 * (noise(x, y, ns) + 0.5));
+          line(x, y, x + lineLen, y);
+          ns += 0.05;
+
           y -= step;
         }
       }
