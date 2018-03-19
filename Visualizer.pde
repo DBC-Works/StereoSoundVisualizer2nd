@@ -86,6 +86,7 @@ final class VisualizerManager
         put("Beat circle and octaved frequency level", new BeatCircleAndOctavedFreqLevelVisualizer(scene));
         put("Spread octagon level", new SpreadOctagonVisualizer(scene));
         put("Triple regular octahedron", new TripleRegularOctahedronVisualizer(scene));
+        put("Facing levels", new FacingLevelsVisualizer(scene));
       }
     };
     

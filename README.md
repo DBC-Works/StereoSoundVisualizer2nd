@@ -13,6 +13,10 @@ Usage
 Update history
 --------------
 
+### 20188-03-19
+
+Add FacingLevelsVisualizer(Example is on [YouTube](https://www.youtube.com/watch?v=PkM_S_ELdhQ)).
+
 ### 2017-12-24
 
 Add TripleRegularOctahedronVisualizer(Example is on [YouTube](https://www.youtube.com/watch?v=_TwmpcksBoE)).
