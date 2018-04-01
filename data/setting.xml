@@ -8,12 +8,23 @@
 		<visualizer>Spread octagon level</visualizer>
 		<visualizer>Triple regular octahedron</visualizer>
 		<visualizer>Facing levels</visualizer>
+		<visualizer>Fake laser light style levels</visualizer>
 
 		<visualizer>Noise steering line</visualizer>
 		<visualizer>Noise steering curve line</visualizer>
 		<visualizer>Level trace</visualizer>
 	</visualizers>
 	<scenes repeat="no">
+		<scene>
+			<file>Initial Revelry.mp3</file>
+			<beatPerMinute>122</beatPerMinute>
+			<visualization>
+				<visualizer>Fake laser light style levels</visualizer>
+				<backgroundColor>#000000</backgroundColor>
+				<color>#adff2f</color>
+				<blendMode>ADD</blendMode>
+			</visualization>
+		</scene>
 		<scene>
 			<file>Calling.mp3</file>
 			<beatPerMinute>104</beatPerMinute>

@@ -87,6 +87,7 @@ final class VisualizerManager
         put("Spread octagon level", new SpreadOctagonVisualizer(scene));
         put("Triple regular octahedron", new TripleRegularOctahedronVisualizer(scene));
         put("Facing levels", new FacingLevelsVisualizer(scene));
+        put("Fake laser light style levels", new FakeLaserLightStyleLevelsVisualizer(scene));
       }
     };
     

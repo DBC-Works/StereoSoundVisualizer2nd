@@ -3,22 +3,9 @@
  * for Processing 3.x
  * licensed under <a href="http://opensource.org/licenses/MIT">MIT License</a>
  * @author Sad Juno
- * @version 201712
+ * @version 201803
  * @see <a href="https://github.com/DBC-Works">GitHub</a>
  */
-
-//
-// Imports
-//
-
-/*
-import java.util.Arrays;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
- */
-//import com.hamoid.*;
 
 //
 // Settings
@@ -30,8 +17,9 @@ final float screenScale = 4 / 4.0;
 // fps: Frame per second
 final int fps = 24;
 
-// recordFrame: Record frame(experimental)
-final boolean recordFrame = false;
+// recorderType: frame recorder type
+//final FrameRecorderType recorderType = FrameRecorderType.AsyncRecorder;
+final FrameRecorderType recorderType = null;
 
 // recordSceneLastFrame: Record last frame of scene
 final boolean recordSceneLastFrame = false;
@@ -43,104 +31,6 @@ boolean standby = false;
 // Classes
 //
 
-interface Recorder
-{
-  abstract void recordFrame();
-  abstract void finish();
-}
-
-final class FrameRecorder implements Recorder
-{
-  FrameRecorder()
-  {
-  }
-
-  public void recordFrame()
-  {
-    saveFrame("img/########.tga");
-  //saveFrame("img/########.png");
-  }
-  
-  public void finish()
-  {
-  } 
-}
-
-/*
-final class AsyncFrameRecorder implements Recorder
-{
-  private final LinkedBlockingQueue<int[]> queue;
-  private final ExecutorService executor = Executors.newCachedThreadPool();
-  private Future future;
-  private volatile long frameCount;
-  
-  AsyncFrameRecorder()
-  {
-    queue = new LinkedBlockingQueue<int[]>();
-  }
-
-  void recordFrame()
-  {
-    loadPixels();
-
-    try {
-      queue.put(Arrays.copyOf(pixels, pixels.length));
-    }
-    catch (InterruptedException e) {
-      println("(lost frame...)");
-    }
-    
-    if (future == null || future.isDone()) {
-      Runnable saveTask = new Runnable() {
-        public void run() {
-          final PImage frameImage = createImage(width, height, HSB);
-          while (0 < queue.size()) {
-            final String fileName = String.format("%08d.png", ++frameCount);
-            try {
-              frameImage.pixels = queue.take();
-              frameImage.save(fileName);
-            }
-            catch (InterruptedException e) {
-              // Do nothing
-              println("(lost frame when save...)");
-            }
-          }
-        }
-      };
-      future = executor.submit(saveTask);
-    }
-  }
-  
-  void finish()
-  {
-    if (future != null && future.isDone() == false && future.isCancelled() == false) {
-      future.cancel(false);
-    }
-    if (executor.isShutdown() == false) {
-      executor.shutdown();
-    }
-  }
-}
-
-final class VideoExportRecorder implements Recorder
-{
-  private final VideoExport videoExport;
-  
-  VideoExportRecorder(PApplet applet)
-  {
-    videoExport = new VideoExport(applet, "movie.mp4");
-  }
-
-  public void recordFrame()
-  {
-    videoExport.saveFrame();
-  }
-  
-  public void finish()
-  {
-  }
-}
- */
 
 //
 // Fields
@@ -152,7 +42,7 @@ int frameDropCount = 0;
 SceneList scenes;
 VisualizerManager visualizerManager;
 MusicDataProvider provider;
-Recorder recorder;
+FrameRecorder recorder;
 
 //
 // Methods
@@ -190,6 +80,17 @@ void playNewSound()
   provider = new MusicDataProvider(this, scene.filePath, fps, scene.beatPerMinute);
   provider.play();
 }
+
+void tearDown()
+{
+  if (provider != null) {
+    provider.stop();
+  }
+  if (recorder != null) {
+    recorder.finish();
+    recorder = null;
+  }
+}
  
 //
 // Entry
@@ -205,28 +106,13 @@ void setup()
 
   smooth();
   frameRate(fps);
-
-  if (recordFrame) {
-    recorder = new FrameRecorder();
-  //recorder = new VideoExportRecorder(this);
-  //recorder = new AsyncFrameRecorder(this);
-  }
   println("ms per frame: " + (getSecondPerFrame() * 1000) + "ms");
+
+  if (recorderType != null) {
+    recorder = createFrameRecorderInstanceOf(recorderType);
+  }
   if (standby == false) {
     playNewSound();
-  }
-}
-
-void stop()
-{
-  super.stop();
-
-  if (provider != null) {
-    provider.stop();
-  }
-  if (recorder != null) {
-    recorder.finish();
-    recorder = null;
   }
 }
 
@@ -256,6 +142,7 @@ void draw()
         if (0 < frameDropCount) {
           println("Frame drop count: " + frameDropCount + " / " + frameCount + "(" + (frameDropCount * 100.0 / frameCount) + ")");
         }
+        tearDown();
         exit();
         return;
       }
